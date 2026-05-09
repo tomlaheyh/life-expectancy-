@@ -285,19 +285,21 @@
       // Build map
       statusEl.style.display = 'none';
       const container = document.getElementById('map-container');
-      const width = 975;
-      const height = 610;
+      const width = 960;
+      const height = 600;
 
       const svg = d3.select('#map-container')
         .append('svg')
-        .attr('viewBox', `0 0 ${width} ${height}`)
-        .attr('preserveAspectRatio', 'xMidYMid meet')
         .attr('width', width)
         .attr('height', height)
         .style('max-width', '100%')
         .style('height', 'auto');
 
-      const path = d3.geoPath();
+      const projection = d3.geoAlbersUsa()
+        .scale(1280)
+        .translate([width / 2, height / 2]);
+
+      const path = d3.geoPath().projection(projection);
 
       const counties = topojson.feature(us, us.objects.counties);
       const states = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
