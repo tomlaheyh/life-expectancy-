@@ -231,7 +231,7 @@
 
       // Build year dropdown
       const sel = document.getElementById('yearSelect');
-      sel.innerHTML = YEARS.map(y =>
+      sel.innerHTML = YEARS.slice().reverse().map(y =>
         `<option value="${y}"${y === CURRENT_YEAR ? ' selected' : ''}>${y}</option>`
       ).join('');
       sel.disabled = false;
