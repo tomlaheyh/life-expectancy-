@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>County Death Rate Map — 2024</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #fff;
+      color: #24292f;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      color: #57606a;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .controls .meta {
+      color: #57606a;
+      font-size: 0.9rem;
+    }
+    .controls a { color: #0969da; }
+    #map-container {
+      position: relative;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f9fafb;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .county {
+      stroke: #fff;
+      stroke-width: 0.2;
+      cursor: pointer;
+      transition: stroke-width 0.1s;
+    }
+    .county:hover {
+      stroke: #000;
+      stroke-width: 1.2;
+    }
+    .state-border {
+      fill: none;
+      stroke: #555;
+      stroke-width: 0.8;
+      pointer-events: none;
+    }
+    .nation-border {
+      fill: none;
+      stroke: #333;
+      stroke-width: 1.2;
+      pointer-events: none;
+    }
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      max-width: 280px;
+      display: none;
+      z-index: 20;
+    }
+    .tooltip .tt-name { font-weight: 700; font-size: 0.9rem; }
+    .tooltip .tt-code { color: #aaa; }
+    .tooltip .tt-rate { font-size: 1rem; font-weight: 700; color: #ffd43b; }
+    .tooltip .tt-detail { color: #ccc; }
+    /* Legend */
+    .legend-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #57606a;
+    }
+    .legend-bar {
+      height: 14px;
+      width: 320px;
+      border-radius: 3px;
+      border: 1px solid #d0d7de;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 320px;
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+    .no-data-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: #e0e0e0;
+      border: 1px solid #bbb;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    .status {
+      padding: 40px;
+      text-align: center;
+      color: #57606a;
+      font-style: italic;
+    }
+    footer {
+      margin-top: 24px;
+      color: #57606a;
+      font-size: 0.85rem;
+    }
+    footer a { color: #0969da; }
+  </style>
+</head>
+<body>
+  <h1>County Death Rate Map</h1>
+  <p class="subtitle">Deaths per 100,000 population by county, 2024. Source: CDC &amp; U.S. Census.</p>
+
+  <div class="controls">
+    <span class="meta" id="mapInfo"></span>
+    <span class="meta" style="margin-left:auto"><a href="index.html">← Home</a></span>
+  </div>
+
+  <div id="map-container">
+    <div id="status" class="status">Loading map data…</div>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <div class="legend-wrap">
+    <span>Low</span>
+    <div>
+      <div class="legend-bar" id="legendBar"></div>
+      <div class="legend-labels" id="legendLabels"></div>
+    </div>
+    <span>High</span>
+    <span style="margin-left: 20px;"><span class="no-data-swatch"></span> No data</span>
+  </div>
+
+  <footer>
+    Source: <a href="https://github.com/tomlaheyh/life-expectancy-">life-expectancy on GitHub</a>.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <script>
+    // ----- CSV parser -----
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+          if (ch === '"' && text[i + 1] === '"') { cur += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { cur += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ',') { row.push(cur); cur = ''; }
+          else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+          else if (ch === '\r') { /* skip */ }
+          else { cur += ch; }
+        }
+      }
+      if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+      return rows;
+    }
+
+    // Color scale: blue (low) -> yellow -> red (high)
+    const COLOR_STEPS = [
+      { val: 0,    color: '#2166ac' },
+      { val: 400,  color: '#67a9cf' },
+      { val: 700,  color: '#d1e5f0' },
+      { val: 900,  color: '#f7f7f7' },
+      { val: 1100, color: '#fddbc7' },
+      { val: 1400, color: '#ef8a62' },
+      { val: 1800, color: '#b2182b' },
+      { val: 2400, color: '#67001f' }
+    ];
+
+    function rateToColor(rate) {
+      if (rate === null || rate === undefined || isNaN(rate)) return '#e0e0e0';
+      for (let i = 1; i < COLOR_STEPS.length; i++) {
+        if (rate <= COLOR_STEPS[i].val) {
+          const prev = COLOR_STEPS[i - 1];
+          const next = COLOR_STEPS[i];
+          const t = (rate - prev.val) / (next.val - prev.val);
+          return d3.interpolateRgb(prev.color, next.color)(t);
+        }
+      }
+      return COLOR_STEPS[COLOR_STEPS.length - 1].color;
+    }
+
+    // Build legend gradient
+    function buildLegend() {
+      const bar = document.getElementById('legendBar');
+      const stops = COLOR_STEPS.map((s, i) => {
+        const pct = (i / (COLOR_STEPS.length - 1)) * 100;
+        return `${s.color} ${pct}%`;
+      }).join(', ');
+      bar.style.background = `linear-gradient(to right, ${stops})`;
+
+      const labels = document.getElementById('legendLabels');
+      labels.innerHTML = COLOR_STEPS.filter((_, i) => i % 2 === 0 || i === COLOR_STEPS.length - 1)
+        .map(s => `<span>${s.val.toLocaleString()}</span>`).join('');
+    }
+    buildLegend();
+
+    // Load data
+    const statusEl = document.getElementById('status');
+    Promise.all([
+      fetch('history-final.csv').then(r => r.text()),
+      fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json').then(r => r.json())
+    ])
+    .then(([csvText, us]) => {
+      // Parse CSV
+      const all = parseCSV(csvText).filter(r => r.length > 1);
+      const header = all[0];
+      const rows = all.slice(1);
+      const colIdx = {};
+      header.forEach((h, i) => { colIdx[h] = i; });
+
+      // Build FIPS -> data lookup (counties only)
+      const dataMap = new Map();
+      let matchCount = 0;
+      rows.forEach(r => {
+        const order = Number(r[colIdx['Order']]);
+        if (order >= 998) return;
+        const fips = r[colIdx['County_Code']];
+        if (!fips) return;
+
+        const deaths = Number(r[colIdx['2024_Deaths']]);
+        const pop = Number(r[colIdx['2024_Population']]);
+        const name = r[colIdx['Full_Name']] || '';
+        const state = r[colIdx['State']] || '';
+
+        let rate = null;
+        if (!isNaN(deaths) && !isNaN(pop) && pop > 0) {
+          rate = (deaths / pop) * 100000;
+        }
+
+        dataMap.set(fips, {
+          name: name,
+          state: state,
+          fips: fips,
+          deaths: isNaN(deaths) ? null : deaths,
+          pop: isNaN(pop) ? null : pop,
+          rate: rate
+        });
+      });
+
+      // Build map
+      statusEl.style.display = 'none';
+      const container = document.getElementById('map-container');
+      const width = 975;
+      const height = 610;
+
+      const svg = d3.select('#map-container')
+        .append('svg')
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+      const path = d3.geoPath();
+
+      const counties = topojson.feature(us, us.objects.counties);
+      const states = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
+      const nation = topojson.mesh(us, us.objects.nation);
+
+      // Draw counties
+      svg.append('g')
+        .selectAll('path')
+        .data(counties.features)
+        .join('path')
+        .attr('class', 'county')
+        .attr('d', path)
+        .attr('fill', d => {
+          // TopoJSON uses numeric FIPS; pad to 5 digits
+          const fips = String(d.id).padStart(5, '0');
+          const info = dataMap.get(fips);
+          if (info && info.rate !== null) {
+            matchCount++;
+            return rateToColor(info.rate);
+          }
+          return '#e0e0e0';
+        })
+        .on('mouseover', function(event, d) {
+          const fips = String(d.id).padStart(5, '0');
+          const info = dataMap.get(fips);
+          const tt = document.getElementById('tooltip');
+
+          let html = '';
+          if (info) {
+            html = `<div class="tt-name">${info.name}</div>`;
+            html += `<div class="tt-code">FIPS: ${info.fips}</div>`;
+            if (info.rate !== null) {
+              html += `<div class="tt-rate">${info.rate.toFixed(1)} per 100K</div>`;
+              html += `<div class="tt-detail">Deaths: ${info.deaths.toLocaleString()} &middot; Pop: ${info.pop.toLocaleString()}</div>`;
+            } else {
+              html += `<div class="tt-detail">No death/population data</div>`;
+            }
+          } else {
+            html = `<div class="tt-name">FIPS: ${fips}</div><div class="tt-detail">No data available</div>`;
+          }
+
+          tt.innerHTML = html;
+          tt.style.display = 'block';
+        })
+        .on('mousemove', function(event) {
+          const tt = document.getElementById('tooltip');
+          const container = document.getElementById('map-container');
+          const rect = container.getBoundingClientRect();
+          let x = event.clientX - rect.left + 12;
+          let y = event.clientY - rect.top - 10;
+          // Keep tooltip in view
+          if (x + 200 > rect.width) x = x - 220;
+          if (y + 80 > rect.height) y = y - 80;
+          tt.style.left = x + 'px';
+          tt.style.top = y + 'px';
+        })
+        .on('mouseout', function() {
+          document.getElementById('tooltip').style.display = 'none';
+        });
+
+      // Draw state borders
+      svg.append('path')
+        .datum(states)
+        .attr('class', 'state-border')
+        .attr('d', path);
+
+      // Draw nation border
+      svg.append('path')
+        .datum(nation)
+        .attr('class', 'nation-border')
+        .attr('d', path);
+
+      // Info
+      const validRates = Array.from(dataMap.values()).filter(d => d.rate !== null);
+      document.getElementById('mapInfo').textContent =
+        `${validRates.length.toLocaleString()} counties mapped · Median rate: ${
+          d3.median(validRates, d => d.rate).toFixed(0)} per 100K`;
+    })
+    .catch(err => {
+      statusEl.textContent = 'Error loading data: ' + err.message;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Population & Deaths History by State (1979–2024)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      color: #24292f;
+      background: #fff;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 4px 0;
+    }
+    .subtitle {
+      color: #57606a;
+      margin: 0 0 20px 0;
+      font-size: 0.95rem;
+    }
+    .controls {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 12px 0;
+      border-bottom: 1px solid #d0d7de;
+      z-index: 10;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .controls label {
+      font-weight: 600;
+    }
+    .controls select {
+      font-size: 1rem;
+      padding: 6px 10px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      background: #fff;
+      min-width: 220px;
+    }
+    .controls button {
+      font-size: 0.95rem;
+      padding: 6px 14px;
+      border: 1px solid #1a7f37;
+      background: #1f883d;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .controls button:hover:not(:disabled) { background: #1a7f37; }
+    .controls button:disabled {
+      background: #cbd5dc;
+      border-color: #b8c2c8;
+      color: #6e7781;
+      cursor: not-allowed;
+    }
+    .controls .meta {
+      color: #57606a;
+      font-size: 0.9rem;
+    }
+    .scrollbar-top {
+      overflow-x: auto;
+      overflow-y: hidden;
+      margin-top: 16px;
+      border: 1px solid #d0d7de;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      background: #f6f8fa;
+    }
+    .scrollbar-top-inner { height: 1px; }
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 220px);
+      border: 1px solid #d0d7de;
+      border-radius: 0 0 6px 6px;
+    }
+    table {
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+    th, td {
+      border-bottom: 1px solid #eaeef2;
+      border-right: 1px solid #eaeef2;
+      padding: 6px 10px;
+      text-align: right;
+      min-width: 115px;
+    }
+    th {
+      background: #f6f8fa;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      font-weight: 600;
+    }
+    th.group-pop { background: #eef6ff; }
+    th.group-deaths { background: #fff1f0; }
+    td.group-pop { background: #f7fbff; }
+    td.group-deaths { background: #fff8f7; }
+    th:first-child, td:first-child,
+    th:nth-child(2), td:nth-child(2) {
+      text-align: left;
+      background: #fafbfc;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+    }
+    th:first-child, th:nth-child(2) { z-index: 3; }
+    th:first-child, td:first-child {
+      min-width: 260px; width: 260px; max-width: 260px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      left: 260px;
+      min-width: 130px; width: 130px; max-width: 130px;
+    }
+    th:first-child, td:first-child { box-shadow: none; }
+    th:nth-child(2), td:nth-child(2) { box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
+    td.highlight-jump { background: #fff3a0 !important; }
+    tr.row-selected td { background: #d6f5d6 !important; }
+    tr.row-selected.row-state td { background: #b8e6b8 !important; }
+    tr.row-selected.row-us td { background: #b8d4f0 !important; }
+    tr.row-state td { background: #eef6ee !important; font-weight: 600; border-top: 2px solid #8cb88c; }
+    tr.row-us td { background: #e0ecf8 !important; font-weight: 700; border-top: 2px solid #6a9fd8; }
+    .legend {
+      background: #fffbe6;
+      border: 1px solid #f0d97a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      color: #6b5d00;
+      margin: 12px 0 0 0;
+    }
+    .legend .swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: #fff3a0;
+      border: 1px solid #e0c84a;
+      vertical-align: middle;
+      margin-right: 6px;
+      border-radius: 2px;
+    }
+    .status {
+      padding: 24px;
+      color: #57606a;
+      font-style: italic;
+    }
+    footer {
+      margin-top: 24px;
+      color: #57606a;
+      font-size: 0.85rem;
+    }
+    a { color: #0969da; }
+    .chart-icon {
+      display: inline-block;
+      width: 16px;
+      height: 14px;
+      vertical-align: middle;
+      margin-right: 5px;
+      cursor: pointer;
+      opacity: 0.45;
+      transition: opacity 0.15s;
+    }
+    .chart-icon:hover { opacity: 1; }
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      width: min(920px, 94vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px 28px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 2px 10px;
+      color: #57606a;
+    }
+    .modal-close:hover { background: #f6f8fa; }
+    .modal h2 { margin: 0 0 4px 0; font-size: 1.2rem; }
+    .modal .chart-subtitle { color: #57606a; font-size: 0.9rem; margin: 0 0 16px 0; }
+    .chart-legend {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: #24292f;
+    }
+    .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chart-legend .leg-line {
+      display: inline-block;
+      width: 32px;
+      height: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <h1>Population &amp; Deaths History by State</h1>
+  <p class="subtitle">Annual data for every U.S. county, state total, and US total, 1979–2024. Source: CDC &amp; U.S. Census.</p>
+
+  <div class="controls">
+    <label for="stateSelect">State:</label>
+    <select id="stateSelect" disabled><option>Loading…</option></select>
+    <button id="exportBtn" type="button" disabled>Export CSV</button>
+    <span class="meta" id="rowCount"></span>
+    <span class="meta" style="margin-left:auto"><a href="index.html">← Home</a></span>
+  </div>
+
+  <p class="legend"><span class="swatch"></span>Population changes from the prior year that are 10% or more are highlighted in yellow. Years with blank, zero, or non-numeric values are skipped.</p>
+
+  <div id="status" class="status">Loading data…</div>
+  <div class="scrollbar-top" id="scrollbarTop" style="display:none">
+    <div class="scrollbar-top-inner" id="scrollbarTopInner"></div>
+  </div>
+  <div class="table-wrap" id="tableWrap" style="display:none">
+    <table id="dataTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Chart modal -->
+  <div class="modal-overlay" id="chartModal">
+    <div class="modal">
+      <button class="modal-close" id="chartClose">&times;</button>
+      <h2 id="chartTitle"></h2>
+      <p class="chart-subtitle">Deaths per 100,000 population, 1979–2024</p>
+      <canvas id="chartCanvas" width="860" height="380"></canvas>
+      <div class="chart-legend" id="chartLegend"></div>
+    </div>
+  </div>
+
+  <footer>
+    Source: <a href="https://github.com/tomlaheyh/life-expectancy-">life-expectancy on GitHub</a>.
+  </footer>
+
+  <script>
+    // ----- CSV parser (handles quoted fields with commas) -----
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+          if (ch === '"' && text[i + 1] === '"') { cur += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { cur += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ',') { row.push(cur); cur = ''; }
+          else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+          else if (ch === '\r') { /* skip */ }
+          else { cur += ch; }
+        }
+      }
+      if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+      return rows;
+    }
+
+    function fmt(n) {
+      if (n === '' || n === undefined || n === null) return '';
+      const num = Number(n);
+      if (Number.isNaN(num)) return n;
+      return num.toLocaleString();
+    }
+
+    let HEADER = [];
+    let ROWS = [];
+    let YEARS = [];
+    let COL_IDX = {};
+
+    fetch('history-final.csv')
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(text => {
+        const all = parseCSV(text).filter(r => r.length > 1);
+        HEADER = all[0];
+        ROWS = all.slice(1);
+
+        // index columns by name
+        HEADER.forEach((h, i) => { COL_IDX[h] = i; });
+
+        // discover years from header
+        const yearSet = new Set();
+        HEADER.forEach(h => {
+          const m = h.match(/^(\d{4})_(Deaths|Population)$/);
+          if (m) yearSet.add(m[1]);
+        });
+        YEARS = Array.from(yearSet).sort();
+
+        // build state list
+        const stIdx = COL_IDX['State'];
+        const states = Array.from(new Set(ROWS.map(r => r[stIdx]).filter(Boolean))).sort();
+
+        const sel = document.getElementById('stateSelect');
+        sel.innerHTML = '<option value="">— Choose a state —</option>' +
+          states.map(s => `<option value="${s}">${s}</option>`).join('');
+        sel.disabled = false;
+        sel.addEventListener('change', render);
+
+        document.getElementById('status').textContent = 'Choose a state above to view its counties.';
+      })
+      .catch(err => {
+        document.getElementById('status').textContent =
+          'Could not load history-final.csv. Make sure the file is in the same folder as this page. (' + err.message + ')';
+      });
+
+    function render() {
+      const state = document.getElementById('stateSelect').value;
+      const tbl = document.getElementById('dataTable');
+      const wrap = document.getElementById('tableWrap');
+      const status = document.getElementById('status');
+      const rowCount = document.getElementById('rowCount');
+
+      const exportBtn = document.getElementById('exportBtn');
+
+      if (!state) {
+        wrap.style.display = 'none';
+        status.style.display = 'block';
+        status.textContent = 'Choose a state above to view its counties.';
+        rowCount.textContent = '';
+        exportBtn.disabled = true;
+        document.getElementById('scrollbarTop').style.display = 'none';
+        return;
+      }
+      exportBtn.disabled = false;
+
+      const stIdx = COL_IDX['State'];
+      const fnIdx = COL_IDX['Full_Name'];
+      const ordIdx = COL_IDX['Order'];
+      const filtered = ROWS.filter(r => r[stIdx] === state);
+
+      // sort by Order so counties come first, then state total (998), then US (999)
+      filtered.sort((a, b) => Number(a[ordIdx]) - Number(b[ordIdx]));
+
+      // store for chart access
+      CURRENT_FILTERED = filtered;
+
+      // chart icon SVG (tiny line chart)
+      const chartSVG = '<svg class="chart-icon" viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg">'
+        + '<polyline points="1,12 4,7 7,9 10,3 14,5" fill="none" stroke="#0969da" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      // build header
+      let thead = '<tr>';
+      thead += '<th>Name</th><th>State</th>';
+      YEARS.forEach(y => {
+        thead += `<th class="group-pop">${y}_Population</th>`;
+        thead += `<th class="group-deaths">${y}_Deaths</th>`;
+      });
+      thead += '</tr>';
+      tbl.querySelector('thead').innerHTML = thead;
+
+      // build body
+      const body = filtered.map((r, ri) => {
+        const order = Number(r[ordIdx]);
+        let rowClass = '';
+        if (order === 998) rowClass = ' class="row-state"';
+        else if (order === 999) rowClass = ' class="row-us"';
+        let tr = `<tr${rowClass} data-ridx="${ri}">`;
+        tr += `<td><span class="chart-btn" data-ridx="${ri}">${chartSVG}</span>${r[fnIdx] || ''}</td>`;
+        tr += `<td>${r[stIdx] || ''}</td>`;
+        let prevPop = null;
+        YEARS.forEach(y => {
+          const popI = COL_IDX[`${y}_Population`];
+          const deI = COL_IDX[`${y}_Deaths`];
+          const popRaw = (r[popI] === undefined || r[popI] === null) ? '' : String(r[popI]).trim();
+          const popNum = Number(popRaw);
+          const popValid = popRaw !== '' && !Number.isNaN(popNum) && popNum > 0;
+          let popClass = 'group-pop';
+          if (popValid && prevPop !== null) {
+            const change = Math.abs(popNum - prevPop) / prevPop;
+            if (change >= 0.10) popClass += ' highlight-jump';
+          }
+          tr += `<td class="${popClass}">${fmt(r[popI])}</td>`;
+          tr += `<td class="group-deaths">${fmt(r[deI])}</td>`;
+          prevPop = popValid ? popNum : null;
+        });
+        tr += '</tr>';
+        return tr;
+      }).join('');
+      tbl.querySelector('tbody').innerHTML = body;
+
+      const countyCount = filtered.filter(r => Number(r[ordIdx]) < 998).length;
+      wrap.style.display = 'block';
+      status.style.display = 'none';
+      rowCount.textContent = `${countyCount} counties + state & US totals`;
+
+      // sync top scrollbar
+      const top = document.getElementById('scrollbarTop');
+      const inner = document.getElementById('scrollbarTopInner');
+      top.style.display = 'block';
+      // measure after browser paints
+      requestAnimationFrame(() => {
+        inner.style.width = tbl.scrollWidth + 'px';
+      });
+    }
+
+    let CURRENT_FILTERED = [];
+
+    // ---- CHART SYSTEM ----
+    function calcRate(row) {
+      // Returns array of {year, rate} for each year where both deaths & pop are valid
+      const points = [];
+      YEARS.forEach(y => {
+        const dI = COL_IDX[`${y}_Deaths`];
+        const pI = COL_IDX[`${y}_Population`];
+        const d = Number(row[dI]);
+        const p = Number(row[pI]);
+        if (!isNaN(d) && !isNaN(p) && p > 0 && d >= 0) {
+          points.push({ year: Number(y), rate: (d / p) * 100000 });
+        }
+      });
+      return points;
+    }
+
+    function findStateRow(state) {
+      const stIdx = COL_IDX['State'];
+      const ordIdx = COL_IDX['Order'];
+      return ROWS.find(r => r[stIdx] === state && r[ordIdx] === '998');
+    }
+
+    function findUSRow() {
+      const ordIdx = COL_IDX['Order'];
+      return ROWS.find(r => r[ordIdx] === '999');
+    }
+
+    function openChart(rowIdx) {
+      const row = CURRENT_FILTERED[rowIdx];
+      if (!row) return;
+
+      const ordIdx = COL_IDX['Order'];
+      const fnIdx = COL_IDX['Full_Name'];
+      const stIdx = COL_IDX['State'];
+      const ccIdx = COL_IDX['County_Code'];
+      const order = Number(row[ordIdx]);
+      const name = row[fnIdx] || '';
+      const code = row[ccIdx] || '';
+      const state = row[stIdx] || '';
+
+      // Determine which lines to show
+      const lines = [];
+      const usRow = findUSRow();
+      const stateRow = findStateRow(state);
+
+      if (order === 999) {
+        // Clicked US row: just US
+        lines.push({ label: 'US', data: calcRate(usRow), color: '#000', width: 3.5, dash: [] });
+      } else if (order === 998) {
+        // Clicked state row: state + US
+        lines.push({ label: state, data: calcRate(stateRow), color: '#2563eb', width: 2.5, dash: [] });
+        if (usRow) lines.push({ label: 'US', data: calcRate(usRow), color: '#000', width: 3.5, dash: [] });
+      } else {
+        // County: county + state + US
+        lines.push({ label: name, data: calcRate(row), color: '#e07020', width: 1.5, dash: [6, 3] });
+        if (stateRow) lines.push({ label: state, data: calcRate(stateRow), color: '#2563eb', width: 2.5, dash: [] });
+        if (usRow) lines.push({ label: 'US', data: calcRate(usRow), color: '#000', width: 3.5, dash: [] });
+      }
+
+      // Title
+      const titleText = code ? `${name} (${code})` : name;
+      document.getElementById('chartTitle').textContent = titleText;
+
+      // Legend
+      const legEl = document.getElementById('chartLegend');
+      legEl.innerHTML = lines.map(l => {
+        const dashAttr = l.dash.length ? ` stroke-dasharray="${l.dash.join(',')}"` : '';
+        return `<span><svg class="leg-line" viewBox="0 0 32 8"><line x1="0" y1="4" x2="32" y2="4" stroke="${l.color}" stroke-width="${l.width}"${dashAttr}/></svg>${l.label}</span>`;
+      }).join('');
+
+      // Draw chart
+      drawChart(lines);
+
+      // Show modal
+      document.getElementById('chartModal').classList.add('open');
+    }
+
+    function drawChart(lines) {
+      const canvas = document.getElementById('chartCanvas');
+      const dpr = window.devicePixelRatio || 1;
+      const cw = 860, ch = 380;
+      canvas.width = cw * dpr;
+      canvas.height = ch * dpr;
+      canvas.style.width = cw + 'px';
+      canvas.style.height = ch + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, cw, ch);
+
+      // Margins
+      const ml = 60, mr = 20, mt = 16, mb = 40;
+      const pw = cw - ml - mr;
+      const ph = ch - mt - mb;
+
+      // Compute global min/max across all lines
+      let allYears = new Set();
+      let minRate = Infinity, maxRate = -Infinity;
+      lines.forEach(l => {
+        l.data.forEach(p => {
+          allYears.add(p.year);
+          if (p.rate < minRate) minRate = p.rate;
+          if (p.rate > maxRate) maxRate = p.rate;
+        });
+      });
+      allYears = Array.from(allYears).sort((a, b) => a - b);
+      if (allYears.length < 2) return;
+
+      // Add 5% padding to rate range
+      const rRange = maxRate - minRate || 1;
+      minRate = Math.max(0, minRate - rRange * 0.05);
+      maxRate = maxRate + rRange * 0.05;
+
+      const yearMin = allYears[0], yearMax = allYears[allYears.length - 1];
+      const xScale = (yr) => ml + ((yr - yearMin) / (yearMax - yearMin)) * pw;
+      const yScale = (r) => mt + ph - ((r - minRate) / (maxRate - minRate)) * ph;
+
+      // Grid lines & Y axis labels
+      ctx.strokeStyle = '#e8e8e8';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '11px -apple-system, sans-serif';
+      ctx.textAlign = 'right';
+      const nTicks = 6;
+      for (let i = 0; i <= nTicks; i++) {
+        const val = minRate + (maxRate - minRate) * (i / nTicks);
+        const y = yScale(val);
+        ctx.beginPath();
+        ctx.moveTo(ml, y);
+        ctx.lineTo(cw - mr, y);
+        ctx.stroke();
+        ctx.fillText(Math.round(val).toLocaleString(), ml - 8, y + 4);
+      }
+
+      // X axis labels (every 5 years)
+      ctx.textAlign = 'center';
+      for (let yr = Math.ceil(yearMin / 5) * 5; yr <= yearMax; yr += 5) {
+        const x = xScale(yr);
+        ctx.fillText(yr, x, ch - mb + 20);
+        ctx.beginPath();
+        ctx.moveTo(x, mt);
+        ctx.lineTo(x, mt + ph);
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.stroke();
+      }
+
+      // Draw lines (US first = behind, county last = on top)
+      const drawOrder = [...lines].reverse();
+      drawOrder.forEach(l => {
+        if (l.data.length === 0) return;
+        ctx.strokeStyle = l.color;
+        ctx.lineWidth = l.width;
+        ctx.setLineDash(l.dash);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Draw segments, breaking on gaps
+        let drawing = false;
+        for (let i = 0; i < l.data.length; i++) {
+          const p = l.data[i];
+          const x = xScale(p.year);
+          const y = yScale(p.rate);
+
+          // Check if there's a year gap (more than 1 year since last point)
+          if (i > 0 && p.year - l.data[i - 1].year > 1) {
+            ctx.stroke();
+            drawing = false;
+          }
+
+          if (!drawing) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            drawing = true;
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        if (drawing) ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Y axis label
+      ctx.save();
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.translate(16, mt + ph / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Deaths per 100,000', 0, 0);
+      ctx.restore();
+    }
+
+    // Close modal
+    document.getElementById('chartClose').addEventListener('click', () => {
+      document.getElementById('chartModal').classList.remove('open');
+    });
+    document.getElementById('chartModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById('chartModal').classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('chartModal').classList.remove('open');
+      }
+    });
+
+    // Wire chart icon clicks (delegated)
+    document.getElementById('dataTable').addEventListener('click', (e) => {
+      const btn = e.target.closest('.chart-btn');
+      if (btn) {
+        e.stopPropagation();
+        openChart(Number(btn.dataset.ridx));
+      }
+    });
+
+    // CSV export of the currently filtered state
+    function exportCSV() {
+      const state = document.getElementById('stateSelect').value;
+      if (!state) return;
+      const stIdx = COL_IDX['State'];
+      const fnIdx = COL_IDX['Full_Name'];
+      const ordIdx = COL_IDX['Order'];
+      const filtered = ROWS.filter(r => r[stIdx] === state);
+      filtered.sort((a, b) => Number(a[ordIdx]) - Number(b[ordIdx]));
+
+      const header = ['Name', 'State'];
+      YEARS.forEach(y => {
+        header.push(`${y}_Population`);
+        header.push(`${y}_Deaths`);
+      });
+
+      const escape = (v) => {
+        const s = (v === undefined || v === null) ? '' : String(v);
+        if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      };
+
+      const lines = [header.map(escape).join(',')];
+      filtered.forEach(r => {
+        const row = [r[fnIdx] || '', r[stIdx] || ''];
+        YEARS.forEach(y => {
+          row.push(r[COL_IDX[`${y}_Population`]] || '');
+          row.push(r[COL_IDX[`${y}_Deaths`]] || '');
+        });
+        lines.push(row.map(escape).join(','));
+      });
+
+      const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const safe = state.replace(/[^a-z0-9]+/gi, '_');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `history_${safe}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    document.getElementById('exportBtn').addEventListener('click', exportCSV);
+
+    // wire up two-way scroll syncing once
+    (function wireScrollSync() {
+      const top = document.getElementById('scrollbarTop');
+      const wrap = document.getElementById('tableWrap');
+      let lock = false;
+      top.addEventListener('scroll', () => {
+        if (lock) return; lock = true;
+        wrap.scrollLeft = top.scrollLeft;
+        requestAnimationFrame(() => { lock = false; });
+      });
+      wrap.addEventListener('scroll', () => {
+        if (lock) return; lock = true;
+        top.scrollLeft = wrap.scrollLeft;
+        requestAnimationFrame(() => { lock = false; });
+      });
+      window.addEventListener('resize', () => {
+        const tbl = document.getElementById('dataTable');
+        const inner = document.getElementById('scrollbarTopInner');
+        if (tbl && inner) inner.style.width = tbl.scrollWidth + 'px';
+      });
+    })();
+
+    // Row selection: click to highlight, arrow keys to move
+    (function wireRowSelect() {
+      const tbody = document.getElementById('dataTable').querySelector('tbody');
+
+      function selectRow(tr) {
+        if (!tr) return;
+        const prev = tbody.querySelector('tr.row-selected');
+        if (prev) prev.classList.remove('row-selected');
+        tr.classList.add('row-selected');
+        tr.scrollIntoView({ block: 'nearest' });
+      }
+
+      tbody.addEventListener('click', (e) => {
+        const tr = e.target.closest('tr');
+        if (tr) selectRow(tr);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        const sel = tbody.querySelector('tr.row-selected');
+        if (!sel) return;
+        e.preventDefault();
+        const next = e.key === 'ArrowDown' ? sel.nextElementSibling : sel.previousElementSibling;
+        if (next) selectRow(next);
+      });
+    })();
+  </script>
+</body>
+</html>

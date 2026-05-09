@@ -1,0 +1,82 @@
+"Notes"	"State"	"State Code"	Deaths	Population	Crude Rate
+	"Alabama"	"01"	47470	4757938	997.7
+	"Alaska"	"02"	3618	698895	517.7
+	"Arizona"	"04"	45816	6343154	722.3
+	"Arkansas"	"05"	28673	2896843	989.8
+	"California"	"06"	232736	36961229	629.7
+	"Colorado"	"08"	31173	4972195	626.9
+	"Connecticut"	"09"	28585	3561807	802.5
+	"Delaware"	"10"	7534	891730	844.9
+	"District of Columbia"	"11"	4834	592228	816.2
+	"Florida"	"12"	169924	18652644	911.0
+	"Georgia"	"13"	69712	9620846	724.6
+	"Hawaii"	"15"	9914	1346717	736.2
+	"Idaho"	"16"	11098	1554439	714.0
+	"Illinois"	"17"	100056	12796778	781.9
+	"Indiana"	"18"	55973	6459325	866.5
+	"Iowa"	"19"	27544	3032870	908.2
+	"Kansas"	"20"	24024	2832704	848.1
+	"Kentucky"	"21"	41380	4317074	958.5
+	"Louisiana"	"22"	40282	4491648	896.8
+	"Maine"	"23"	12594	1329590	947.2
+	"Maryland"	"24"	43843	5730388	765.1
+	"Massachusetts"	"25"	52308	6517613	802.6
+	"Michigan"	"26"	86455	9901591	873.1
+	"Minnesota"	"27"	37851	5281203	716.7
+	"Mississippi"	"28"	28275	2958774	955.6
+	"Missouri"	"29"	54263	5961088	910.3
+	"Montana"	"30"	8730	983982	887.2
+	"Nebraska"	"31"	14810	1812683	817.0
+	"Nevada"	"32"	19224	2684665	716.1
+	"New Hampshire"	"33"	10100	1316102	767.4
+	"New Jersey"	"34"	68277	8755602	779.8
+	"New Mexico"	"35"	15643	2036802	768.0
+	"New York"	"36"	146475	19307066	758.7
+	"North Carolina"	"37"	77117	9449566	816.1
+	"North Dakota"	"38"	5914	664968	889.4
+	"Ohio"	"39"	107156	11528896	929.5
+	"Oklahoma"	"40"	35601	3717572	957.6
+	"Oregon"	"41"	31636	3808600	830.6
+	"Pennsylvania"	"42"	124780	12666858	985.1
+	"Rhode Island"	"44"	9395	1053646	891.7
+	"South Carolina"	"45"	40449	4589872	881.3
+	"South Dakota"	"46"	6923	807067	857.8
+	"Tennessee"	"47"	58288	6306019	924.3
+	"Texas"	"48"	163249	24801761	658.2
+	"Utah"	"49"	14138	2723421	519.1
+	"Vermont"	"50"	5034	624817	805.7
+	"Virginia"	"51"	58653	7925937	740.0
+	"Washington"	"53"	48270	6667426	724.0
+	"West Virginia"	"54"	21386	1847775	1157.4
+	"Wisconsin"	"55"	45697	5669264	806.0
+	"Wyoming"	"56"	4283	559851	765.0
+"Total"			2437163	306771529	794.5
+"---"
+"Dataset: Compressed Mortality, 1999-2016"
+"Query Parameters:"
+"Title: 2009-states"
+"Year: 2009"
+"Group By: State"
+"Show Totals: True"
+"Show Zero Values: True"
+"Show Suppressed: True"
+"Calculate Rates Per: 100,000"
+"---"
+"Help: See http://wonder.cdc.gov/wonder/help/cmf.html for more information."
+"---"
+"Query Date: May 7, 2026 6:28:07 AM"
+"---"
+"Suggested Citation: Centers for Disease Control and Prevention, National Center for Health Statistics. National Vital Statistics"
+"System, Mortality: Compressed Mortality File 1999-2016 on CDC WONDER Online Database, released June 2017. Data are from the"
+"Compressed Mortality File 1999-2016 Series 20 No. 2U, 2016, as compiled from data provided by the 57 vital statistics"
+"jurisdictions through the Vital Statistics Cooperative Program. Accessed at http://wonder.cdc.gov/cmf-icd10.html on May 7, 2026"
+"6:28:07 AM"
+"---"
+Caveats:
+"1. About population figures for regions, divisions, states and counties: population figures for 1999 are from the 1990-1999"
+"series of bridged-race intercensal estimates of the July 1 resident population; population figures for 2000 and 2010 are"
+"bridged-race April 1 census counts; population figures for 2001-2009 are from the revised 2000-2009 series of bridged-race"
+"intercensal estimates of the July 1 resident population; and population figures for 2011-2015 are bridged-race postcensal"
+"estimates of the July 1 resident population, from the Vintage 2015 series released by NCHS on June 28, 2016."
+"2. The population figures used in the calculation of death rates for the age group 'under 1 year' are the estimates of the"
+"resident population that is under one year of age. More information: http://wonder.cdc.gov/wonder/help/cmf.html#Age Group."

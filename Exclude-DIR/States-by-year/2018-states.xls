@@ -1,0 +1,113 @@
+"Notes"	"State"	"State Code"	Deaths	Population	Crude Rate	Crude Rate Lower 95% Confidence Interval	Crude Rate Upper 95% Confidence Interval
+	"Alabama"	"01"	54352	4887871	1112.0	1102.6	1121.3
+	"Alaska"	"02"	4453	737438	603.8	586.1	621.6
+	"Arizona"	"04"	59282	7171646	826.6	820.0	833.3
+	"Arkansas"	"05"	32336	3013825	1072.9	1061.2	1084.6
+	"California"	"06"	268818	39557045	679.6	677.0	682.1
+	"Colorado"	"08"	38526	5695564	676.4	669.7	683.2
+	"Connecticut"	"09"	31230	3572665	874.1	864.4	883.8
+	"Delaware"	"10"	9433	967171	975.3	955.6	995.0
+	"District of Columbia"	"11"	5008	702455	712.9	693.2	732.7
+	"Florida"	"12"	205426	21299325	964.5	960.3	968.6
+	"Georgia"	"13"	85202	10519475	809.9	804.5	815.4
+	"Hawaii"	"15"	11415	1420491	803.6	788.9	818.3
+	"Idaho"	"16"	14261	1754208	813.0	799.6	826.3
+	"Illinois"	"17"	110022	12741080	863.5	858.4	868.6
+	"Indiana"	"18"	65693	6691878	981.7	974.2	989.2
+	"Iowa"	"19"	30367	3156145	962.2	951.3	973.0
+	"Kansas"	"20"	27537	2911505	945.8	934.6	957.0
+	"Kentucky"	"21"	48707	4468402	1090.0	1080.4	1099.7
+	"Louisiana"	"22"	46048	4659978	988.2	979.1	997.2
+	"Maine"	"23"	14715	1338404	1099.4	1081.7	1117.2
+	"Maryland"	"24"	50568	6042718	836.8	829.5	844.1
+	"Massachusetts"	"25"	59152	6902149	857.0	850.1	863.9
+	"Michigan"	"26"	98903	9995915	989.4	983.3	995.6
+	"Minnesota"	"27"	44745	5611179	797.4	790.0	804.8
+	"Mississippi"	"28"	32301	2986530	1081.6	1069.8	1093.4
+	"Missouri"	"29"	63117	6126452	1030.2	1022.2	1038.3
+	"Montana"	"30"	9992	1062305	940.6	922.2	959.0
+	"Nebraska"	"31"	16904	1929268	876.2	863.0	889.4
+	"Nevada"	"32"	24715	3034392	814.5	804.3	824.7
+	"New Hampshire"	"33"	12774	1356458	941.7	925.4	958.0
+	"New Jersey"	"34"	75765	8908520	850.5	844.4	856.5
+	"New Mexico"	"35"	19007	2095428	907.1	894.2	920.0
+	"New York"	"36"	157183	19542209	804.3	800.3	808.3
+	"North Carolina"	"37"	93885	10383620	904.2	898.4	909.9
+	"North Dakota"	"38"	6445	760077	847.9	827.2	868.6
+	"Ohio"	"39"	124264	11689442	1063.0	1057.1	1069.0
+	"Oklahoma"	"40"	40933	3943079	1038.1	1028.0	1048.2
+	"Oregon"	"41"	36187	4190713	863.5	854.6	872.4
+	"Pennsylvania"	"42"	134702	12807060	1051.8	1046.2	1057.4
+	"Rhode Island"	"44"	10083	1057315	953.6	935.0	972.3
+	"South Carolina"	"45"	50640	5084127	996.0	987.4	1004.7
+	"South Dakota"	"46"	7971	882235	903.5	883.7	923.3
+	"Tennessee"	"47"	71078	6770010	1049.9	1042.2	1057.6
+	"Texas"	"48"	202211	28701845	704.5	701.5	707.6
+	"Utah"	"49"	18354	3161105	580.6	572.2	589.0
+	"Vermont"	"50"	6027	626299	962.3	938.0	986.6
+	"Virginia"	"51"	69359	8517685	814.3	808.2	820.4
+	"Washington"	"53"	56877	7535591	754.8	748.6	761.0
+	"West Virginia"	"54"	23478	1805832	1300.1	1283.5	1316.8
+	"Wisconsin"	"55"	53684	5813568	923.4	915.6	931.2
+	"Wyoming"	"56"	5070	577737	877.6	853.4	901.7
+"Total"			2839205	327167434	867.8	866.8	868.8
+"---"
+"Dataset: Underlying Cause of Death, 2018-2024, Single Race"
+"Query Parameters:"
+"Title: 2018-states"
+"Year/Month: 2018"
+"Group By: State"
+"Show Totals: True"
+"Show Zero Values: True"
+"Show Suppressed: True"
+"Calculate Rates Per: 100,000"
+"Rate Options: Default intercensal populations for years 2001-2009 (except Infant Age Groups)"
+"---"
+"Help: See http://wonder.cdc.gov/wonder/help/ucd-expanded.html for more information."
+"---"
+"Query Date: May 7, 2026 6:32:14 AM"
+"---"
+"Suggested Citation: Centers for Disease Control and Prevention, National Center for Health Statistics. National Vital Statistics"
+"System, Mortality 2018-2024 on CDC WONDER Online Database, released in 2026. Data are from the Multiple Cause of Death Files,"
+"2018-2024, as compiled from data provided by the 57 vital statistics jurisdictions through the Vital Statistics Cooperative"
+"Program. Accessed at http://wonder.cdc.gov/ucd-icd10-expanded.html on May 7, 2026 6:32:14 AM"
+"---"
+Caveats:
+"1. The method used to calculate 95% confidence intervals is documented here: More information:"
+"http://wonder.cdc.gov/wonder/help/ucd-expanded.html#Confidence-Intervals."
+"2. The population figures for year 2024 are single-race estimates of the July 1 resident population, from the Vintage 2024"
+"postcensal series released by the Census Bureau on June 27, 2024. The 2024 series is based on the Modified Blended Base produced"
+"by the US Census Bureau in lieu of the April 1, 2020 decennial population count. The Modified Blended Base consists of the blend"
+"of Vintage 2020 postcensal population estimates for April 1, 2020, 2020 Demographic Analysis Estimates, and 2020 Census data"
+"from the internal Census Edited File (CEF). The population figures for year 2023 are single-race estimates of the July 1"
+"resident population, from the Vintage 2023 postcensal series released by the Census Bureau on June 27, 2024. The 2023 series is"
+"based on the Modified Blended Base produced by the US Census Bureau in lieu of the April 1, 2020 decennial population count. The"
+"Modified Blended Base consists of the blend of Vintage 2020 postcensal population estimates for April 1, 2020, 2020 Demographic"
+"Analysis Estimates, and 2020 Census data from the internal Census Edited File (CEF). The population figures for years 2022 are"
+"single-race estimates of the July 1 resident population, from the Vintage 2022 postcensal series released by the Census Bureau"
+"on June 22, 2023. The 2022 series is based on the Modified Blended Base produced by the US Census Bureau in lieu of the April 1,"
+"2020 decennial population count. The Modified Blended Base consists of the blend of Vintage 2020 postcensal population estimates"
+"for April 1, 2020, 2020 Demographic Analysis Estimates, and 2020 Census data from the internal Census Edited File (CEF). The"
+"population figures for years 2021 are single-race estimates of the July 1 resident population, based on the Blended Base"
+"produced by the US Census Bureau in lieu of the April 1, 2020 decennial population count, from the Vintage 2021 postcensal"
+"series released by the Census Bureau on June 30, 2022. The population figures for year 2020 are single-race estimates of the"
+"July 1 resident population, from the Vintage 2020 postcensal series based on April 2010 Census, released by the Census Bureau on"
+"July 27, 2021. The population figures for year 2019 are single-race estimates of the July 1 resident population, from the"
+"Vintage 2019 postcensal series based on April 2010 Census, released by the Census Bureau on June 25, 2020. The population"
+"figures for year 2018 are single-race estimates of the July 1 resident population, from the Vintage 2018 postcensal series based"
+"on April 2010 Census, released by the Census Bureau on June 20, 2019. More information:"
+"http://wonder.cdc.gov/wonder/help/ucd-expanded.html#Population Data."
+"3. The population figures used in the calculation of death rates for the age group 'under 1 year' are the estimates of the"
+"resident population that is under one year of age. More information: http://wonder.cdc.gov/wonder/help/ucd-expanded.html#Age"
+"Group."
+"4. Connecticut population estimates for 2022 and later years are reported for 9 planning regions as county equivalent areas,"
+"instead of the former 8 legacy counties in the Vintage 2022 postcensal series released by the Census Bureau on June 22, 2023,"
+"and in the Vintage 2023 postcensal series released by the Census Bureau on June 27, 2024. Populations estimates for the former"
+"counties are not available for 2022 and later years. More information:"
+"http://wonder.cdc.gov/wonder/help/ucd-expanded.html#Connecticut-2022."
+"5. After the creation of the final 2023 dataset, North Carolina updated the cause of death information for over 900 death"
+"certificates to include a cause of death code indicating drug overdose (ICD-10 underlying cause-of-death codes: X40-X44,"
+"X60-X64, X85, and Y10-Y14). Jurisdictions can continue to update death certificates after the closing of the mortality file. As"
+"a result, users should consider that the actual death count for drug overdose deaths for North Carolina in 2023 is over 4,400"
+"deaths, with a crude rate of approximately 41.0 per 100,000 population, and an age-adjusted rate of approximately 42.1 per"
+"100,000 population. These deaths will not be updated on the final mortality datasets."
