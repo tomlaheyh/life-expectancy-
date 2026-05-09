@@ -285,8 +285,8 @@
       // Build map
       statusEl.style.display = 'none';
       const container = document.getElementById('map-container');
-      const width = 960;
-      const height = 600;
+      const width = 1152;
+      const height = 720;
 
       const svg = d3.select('#map-container')
         .append('svg')
@@ -296,7 +296,7 @@
         .style('height', 'auto');
 
       const projection = d3.geoAlbersUsa()
-        .scale(1280)
+        .scale(1536)
         .translate([width / 2, height / 2]);
 
       const path = d3.geoPath().projection(projection);
