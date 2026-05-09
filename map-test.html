@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Map Test</title>
+</head>
+<body>
+  <h1>Map Test</h1>
+  <div id="map" style="width:960px; height:600px; border:2px solid red;"></div>
+  <p id="status">Loading...</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <script>
+    fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
+      .then(r => r.json())
+      .then(us => {
+        var svg = d3.select('#map')
+          .append('svg')
+          .attr('width', 960)
+          .attr('height', 600);
+
+        var path = d3.geoPath();
+        var counties = topojson.feature(us, us.objects.counties);
+
+        svg.selectAll('path')
+          .data(counties.features)
+          .join('path')
+          .attr('d', path)
+          .attr('fill', function(d) {
+            // LA County FIPS = 06037
+            return String(d.id) === '6037' ? 'red' : '#ddd';
+          })
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 0.3);
+
+        document.getElementById('status').textContent =
+          'Done! Counties: ' + counties.features.length;
+      })
+      .catch(function(err) {
+        document.getElementById('status').textContent = 'Error: ' + err.message;
+      });
+  </script>
+</body>
+</html>
